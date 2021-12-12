@@ -9,7 +9,8 @@ typedef vector <double> TAB;
 bool WyborDanych ();
 unsigned int WczytajDane (Matrix&);
 unsigned int WczytajDomyslne (Matrix&, int);
-bool Eliminacja (Matrix&, int);
+int IndexMAXK (Matrix, int);
+bool Eliminacja (Matrix&, int, int);
 bool Oblicz (Matrix, TAB&, int);
 void Wyswietl (TAB, int);
 int main () {
@@ -41,7 +42,7 @@ int main () {
                 daneZewn = WyborDanych();
                 if (daneZewn) n = WczytajDane(Ab);
                 else n = WczytajDomyslne(Ab, 1);
-                if (Eliminacja(Ab, n)) {
+                if (Eliminacja(Ab, n, 1)) {
                     cout<<"Podczas wykonywania eliminacji wystapil blad!"<<endl;
                     break;
                 }
@@ -56,6 +57,15 @@ int main () {
                 daneZewn = WyborDanych();
                 if (daneZewn) n = WczytajDane(Ab);
                 else n = WczytajDomyslne(Ab, 2);
+                if (Eliminacja(Ab, n, 2)) {
+                    cout<<"Podczas wykonywania eliminacji wystapil blad!"<<endl;
+                    break;
+                }
+                if (Oblicz(Ab, X, n)) {
+                    cout<<"Podczas wykonywania postepowania odwrotnego wystapil blad!"<<endl;
+                    break;
+                }
+                Wyswietl(X, n);
                 break;
             }
             case 3: {
@@ -80,13 +90,31 @@ int main () {
     cin.get();
     return 0;
 }
+int IndexMAXK (Matrix Ab, int k) {
+    double max = fabs(Ab[k][k]);
+    int imax = k;
+    for (int i = k + 1; i < Ab[0].size() - 1; i++) {
+        if (fabs(Ab[k][i]) > max) {
+            max = fabs(Ab[k][i]);
+            imax = i;
+        }
+    }
+    return imax;
+}
+void ZamienWiersze (Matrix &Ab, int i1, int i2) {
+    if (i1 == i2) return;
+    TAB pom;
+    pom = Ab[i1];
+    Ab[i1] = Ab[i2];
+    Ab[i2] = pom;
+}
 void Wyswietl (TAB X, int n) {
     cout<<"x = [";
     for (int i = 0; i < n; i++) {
         cout<<X[i];
         if (i < n - 1) cout<<",";
     }
-    cout<<"]"<<endl;
+    cout<<"]T"<<endl;
 }
 bool Oblicz (Matrix Ab, TAB &X, int n) {
     if (Ab[n-1][n-1] == 0) {
@@ -103,8 +131,13 @@ bool Oblicz (Matrix Ab, TAB &X, int n) {
     }
     return false;
 }
-bool Eliminacja (Matrix &Ab, int n) {
+bool Eliminacja (Matrix &Ab, int n, int metoda) {
     // Krok 1
+    int imax;
+    if (metoda == 2) {
+        imax = IndexMAXK(Ab, 0);
+        ZamienWiersze(Ab, 0, imax);
+    }
     if (Ab[0][0] == 0) {
         system("cls");
         cout<<"Blad w kroku 1. eliminacji: a11 = 0"<<endl;
@@ -118,6 +151,10 @@ bool Eliminacja (Matrix &Ab, int n) {
     }
     // Krok k
     for (int k = 2; k < n; k++) {
+        if (metoda == 2) {
+            imax = IndexMAXK(Ab, k - 1);
+            ZamienWiersze(Ab, k - 1, imax);
+        }
         if (Ab[k-1][k-1] == 0) {
             system("cls");
             cout<<"Blad w kroku "<<k<<". eliminacji: a"<<k<<k<<" = 0"<<endl;
@@ -139,6 +176,14 @@ unsigned int WczytajDomyslne (Matrix& Ab, int metoda) {
         Ab.resize(n);
         for (int i = 0; i < n; i++) Ab[i].resize(n + 1);
         Ab = {{1, 1, 0, -3, 1}, {1, 4, -1, -4, -2}, {0.5, 0.5, -3, -5.5, 1.5}, {1.5, 3, -5, -9, -0.5}};
+        return n;
+    }
+    if (metoda == 2) {
+        // Przyklad 10.2.
+        n = 4;
+        Ab.resize(n);
+        for (int i = 0; i < n; i++) Ab[i].resize(n + 1);
+        Ab = {{2.25, -2.5, 4, -5.25, -1}, {-3, -7.5, 6.5, 0, 17}, {-6.25, -12.5, 0.25, 5.25, 24.25}, {9, 10, 7 -21, -33}};
         return n;
     }
     return 0;
