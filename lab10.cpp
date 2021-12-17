@@ -4,15 +4,18 @@
 # include <stdlib.h>
 # pragma GCC optimize("O2")
 using namespace std;
+const double eps = 1.0e-06;
 typedef vector <vector <double>> Matrix;
 typedef vector <double> TAB;
 bool WyborDanych ();
 unsigned int WczytajDane (Matrix&);
 unsigned int WczytajDomyslne (Matrix&, int);
-int IndexMAXK (Matrix, int);
+int IndexMAXK (Matrix, int, int);
 bool Eliminacja (Matrix&, int, int);
 bool Oblicz (Matrix, TAB&, int);
 void Wyswietl (TAB, int);
+void Wyswietl2D (Matrix, int);
+void ZamienWiersze (Matrix&, int, int, int);
 int main () {
     // Zmienne ukladu
     Matrix Ab;
@@ -90,18 +93,18 @@ int main () {
     cin.get();
     return 0;
 }
-int IndexMAXK (Matrix Ab, int k) {
+int IndexMAXK (Matrix Ab, int k, int n) {
     double max = fabs(Ab[k][k]);
     int imax = k;
-    for (int i = k + 1; i < Ab[0].size() - 1; i++) {
-        if (fabs(Ab[k][i]) > max) {
-            max = fabs(Ab[k][i]);
+    for (int i = k + 1; i < n; i++) {
+        if (fabs(Ab[i][k]) > max) {
+            max = fabs(Ab[i][k]);
             imax = i;
         }
     }
     return imax;
 }
-void ZamienWiersze (Matrix &Ab, int i1, int i2) {
+void ZamienWiersze (Matrix &Ab, int i1, int i2, int n) {
     if (i1 == i2) return;
     TAB pom;
     pom = Ab[i1];
@@ -116,10 +119,18 @@ void Wyswietl (TAB X, int n) {
     }
     cout<<"]T"<<endl;
 }
+void Wyswietl2D (Matrix Ab, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n + 1; j++) {
+            cout<<Ab[i][j]<<" | ";
+        }
+        cout<<endl;
+    }
+}
 bool Oblicz (Matrix Ab, TAB &X, int n) {
-    if (Ab[n-1][n-1] == 0) {
+    if (fabs(Ab[n-1][n-1]) <= eps) {
         system("cls");
-        cout<<"Blad w postepowaniu odwrotnym - a"<<n<<n<<" = 0"<<endl;
+        cout<<"Blad w postepowaniu odwrotnym - a"<<n<<n<<" <= eps"<<endl;
         return true;
     }
     X.resize(n);
@@ -135,12 +146,12 @@ bool Eliminacja (Matrix &Ab, int n, int metoda) {
     // Krok 1
     int imax;
     if (metoda == 2) {
-        imax = IndexMAXK(Ab, 0);
-        ZamienWiersze(Ab, 0, imax);
+        imax = IndexMAXK(Ab, 0, n);
+        ZamienWiersze(Ab, 0, imax, n);
     }
-    if (Ab[0][0] == 0) {
+    if (fabs(Ab[0][0]) <= eps) {
         system("cls");
-        cout<<"Blad w kroku 1. eliminacji: a11 = 0"<<endl;
+        cout<<"Blad w kroku 1. eliminacji: a11 <= eps."<<endl;
         return true;
     }
     TAB p;
@@ -152,12 +163,12 @@ bool Eliminacja (Matrix &Ab, int n, int metoda) {
     // Krok k
     for (int k = 2; k < n; k++) {
         if (metoda == 2) {
-            imax = IndexMAXK(Ab, k - 1);
-            ZamienWiersze(Ab, k - 1, imax);
+            imax = IndexMAXK(Ab, k - 1, n);
+            ZamienWiersze(Ab, k - 1, imax, n);
         }
-        if (Ab[k-1][k-1] == 0) {
+        if (fabs(Ab[k-1][k-1]) <= eps) {
             system("cls");
-            cout<<"Blad w kroku "<<k<<". eliminacji: a"<<k<<k<<" = 0"<<endl;
+            cout<<"Blad w kroku "<<k<<". eliminacji: a"<<k<<k<<" <= eps"<<endl;
             return true;
         }
         p.resize(n - k);
@@ -183,7 +194,7 @@ unsigned int WczytajDomyslne (Matrix& Ab, int metoda) {
         n = 4;
         Ab.resize(n);
         for (int i = 0; i < n; i++) Ab[i].resize(n + 1);
-        Ab = {{2.25, -2.5, 4, -5.25, -1}, {-3, -7.5, 6.5, 0, 17}, {-6.25, -12.5, 0.25, 5.25, 24.25}, {9, 10, 7 -21, -33}};
+        Ab = {{2.25, -2.5, 4, -5.25, -1}, {-3, -7.5, 6.5, 0, 17}, {-6.25, -12.5, 0.25, 5.25, 24.25}, {9, 10, 7, -21, -33}};
         return n;
     }
     return 0;
