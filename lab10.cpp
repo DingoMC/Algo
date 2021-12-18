@@ -7,20 +7,28 @@ using namespace std;
 const double eps = 1.0e-06;
 typedef vector <vector <double>> Matrix;
 typedef vector <double> TAB;
+typedef vector <unsigned int> IndexTAB;
+struct Indeks2D {
+    int iw;
+    int ik;
+};
 bool WyborDanych ();
 unsigned int WczytajDane (Matrix&);
 unsigned int WczytajDomyslne (Matrix&, int);
 int IndexMAXK (Matrix, int, int);
-bool Eliminacja (Matrix&, int, int);
+Indeks2D IndexMAXPelny (Matrix, int, int);
+bool Eliminacja (Matrix&, int, int, IndexTAB&);
 bool Oblicz (Matrix, TAB&, int);
-void Wyswietl (TAB, int);
+void Wyswietl (TAB, int, IndexTAB);
 void Wyswietl2D (Matrix, int);
 void ZamienWiersze (Matrix&, int, int, int);
+void ZamienWiK (Matrix&, Indeks2D, Indeks2D, int, IndexTAB&);
 int main () {
     // Zmienne ukladu
     Matrix Ab;
     TAB X;
     unsigned int n;
+    IndexTAB IndeksyX;
     // Zmienne programu
     int menu = 0;
     bool exit = false, daneZewn = false;
@@ -45,7 +53,7 @@ int main () {
                 daneZewn = WyborDanych();
                 if (daneZewn) n = WczytajDane(Ab);
                 else n = WczytajDomyslne(Ab, 1);
-                if (Eliminacja(Ab, n, 1)) {
+                if (Eliminacja(Ab, n, 1, IndeksyX)) {
                     cout<<"Podczas wykonywania eliminacji wystapil blad!"<<endl;
                     break;
                 }
@@ -53,14 +61,14 @@ int main () {
                     cout<<"Podczas wykonywania postepowania odwrotnego wystapil blad!"<<endl;
                     break;
                 }
-                Wyswietl(X, n);
+                Wyswietl(X, n, IndeksyX);
                 break;
             }
             case 2: {
                 daneZewn = WyborDanych();
                 if (daneZewn) n = WczytajDane(Ab);
                 else n = WczytajDomyslne(Ab, 2);
-                if (Eliminacja(Ab, n, 2)) {
+                if (Eliminacja(Ab, n, 2, IndeksyX)) {
                     cout<<"Podczas wykonywania eliminacji wystapil blad!"<<endl;
                     break;
                 }
@@ -68,13 +76,22 @@ int main () {
                     cout<<"Podczas wykonywania postepowania odwrotnego wystapil blad!"<<endl;
                     break;
                 }
-                Wyswietl(X, n);
+                Wyswietl(X, n, IndeksyX);
                 break;
             }
             case 3: {
                 daneZewn = WyborDanych();
                 if (daneZewn) n = WczytajDane(Ab);
                 else n = WczytajDomyslne(Ab, 3);
+                if (Eliminacja(Ab, n, 3, IndeksyX)) {
+                    cout<<"Podczas wykonywania eliminacji wystapil blad!"<<endl;
+                    break;
+                }
+                if (Oblicz(Ab, X, n)) {
+                    cout<<"Podczas wykonywania postepowania odwrotnego wystapil blad!"<<endl;
+                    break;
+                }
+                Wyswietl(X, n, IndeksyX);
                 break;
             }
             case 4: {
@@ -92,6 +109,22 @@ int main () {
     cin.ignore();
     cin.get();
     return 0;
+}
+Indeks2D IndexMAXPelny (Matrix Ab, int k, int n) {
+    double max = fabs(Ab[k][k]);
+    Indeks2D imax;
+    imax.ik = k;
+    imax.iw = k;
+    for (int i = k + 1; i < n; i++) {
+        for (int j = k + 1; j < n; j++) {
+            if (fabs(Ab[i][j]) > max) {
+                max = fabs(Ab[i][k]);
+                imax.iw = i;
+                imax.ik = j;
+            }
+        }
+    }
+    return imax;
 }
 int IndexMAXK (Matrix Ab, int k, int n) {
     double max = fabs(Ab[k][k]);
@@ -111,10 +144,29 @@ void ZamienWiersze (Matrix &Ab, int i1, int i2, int n) {
     Ab[i1] = Ab[i2];
     Ab[i2] = pom;
 }
-void Wyswietl (TAB X, int n) {
+void ZamienWiK (Matrix &Ab, Indeks2D i1, Indeks2D i2, int n, IndexTAB &IndeksyX) {
+    if (i1.iw != i2.iw) {
+        TAB pom;
+        pom = Ab[i1.iw];
+        Ab[i1.iw] = Ab[i2.iw];
+        Ab[i2.iw] = pom;
+    }
+    if (i1.ik == i2.ik) return;
+    unsigned int iX;
+    iX = IndeksyX[i1.ik];
+    IndeksyX[i1.ik] = IndeksyX[i2.ik];
+    IndeksyX[i2.ik] = iX;
+    double p;
+    for (int i = 0; i < n; i++) {
+        p = Ab[i][i1.ik];
+        Ab[i][i1.ik] = Ab[i][i2.ik];
+        Ab[i][i2.ik] = p;
+    }
+}
+void Wyswietl (TAB X, int n, IndexTAB IndeksyX) {
     cout<<"x = [";
     for (int i = 0; i < n; i++) {
-        cout<<X[i];
+        cout<<X[IndeksyX[i]];
         if (i < n - 1) cout<<",";
     }
     cout<<"]T"<<endl;
@@ -142,12 +194,21 @@ bool Oblicz (Matrix Ab, TAB &X, int n) {
     }
     return false;
 }
-bool Eliminacja (Matrix &Ab, int n, int metoda) {
-    // Krok 1
+bool Eliminacja (Matrix &Ab, int n, int metoda, IndexTAB &IndeksyX) {
     int imax;
+    Indeks2D MAXi, DoZamiany;
+    IndeksyX.resize(n);
+    for (unsigned int i = 0; i < n; i++) IndeksyX[i] = i;
+    // Krok 1
     if (metoda == 2) {
         imax = IndexMAXK(Ab, 0, n);
         ZamienWiersze(Ab, 0, imax, n);
+    }
+    if (metoda == 3) {
+        MAXi = IndexMAXPelny(Ab, 0, n);
+        DoZamiany.ik = 0;
+        DoZamiany.iw = 0;
+        ZamienWiK(Ab, DoZamiany, MAXi, n, IndeksyX);
     }
     if (fabs(Ab[0][0]) <= eps) {
         system("cls");
@@ -165,6 +226,12 @@ bool Eliminacja (Matrix &Ab, int n, int metoda) {
         if (metoda == 2) {
             imax = IndexMAXK(Ab, k - 1, n);
             ZamienWiersze(Ab, k - 1, imax, n);
+        }
+        if (metoda == 3) {
+            MAXi = IndexMAXPelny(Ab, k - 1, n);
+            DoZamiany.ik = k - 1;
+            DoZamiany.iw = k - 1;
+            ZamienWiK(Ab, DoZamiany, MAXi, n, IndeksyX);
         }
         if (fabs(Ab[k-1][k-1]) <= eps) {
             system("cls");
@@ -195,6 +262,18 @@ unsigned int WczytajDomyslne (Matrix& Ab, int metoda) {
         Ab.resize(n);
         for (int i = 0; i < n; i++) Ab[i].resize(n + 1);
         Ab = {{2.25, -2.5, 4, -5.25, -1}, {-3, -7.5, 6.5, 0, 17}, {-6.25, -12.5, 0.25, 5.25, 24.25}, {9, 10, 7, -21, -33}};
+        return n;
+    }
+    if (metoda == 3) {
+        // Zadanie 10.3.
+        n = 5;
+        Ab.resize(n);
+        for (int i = 0; i < n; i++) Ab[i].resize(n + 1);
+        Ab = {{14, -13, 3, -16, -42, -37}, 
+            {3.5, -18, 13, -23.75, -21, -5.5}, 
+            {3.5, 3, -5.25, 9.25, 10.5, 12.5}, 
+            {2, 14.5, -10.5, 18.5, 21, 23.5}, 
+            {1.5, 6.75, -9.25, 17, -10.5, -45.25}};
         return n;
     }
     return 0;
