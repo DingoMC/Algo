@@ -118,7 +118,7 @@ Indeks2D IndexMAXPelny (Matrix Ab, int k, int n) {
     for (int i = k + 1; i < n; i++) {
         for (int j = k + 1; j < n; j++) {
             if (fabs(Ab[i][j]) > max) {
-                max = fabs(Ab[i][k]);
+                max = fabs(Ab[i][j]);
                 imax.iw = i;
                 imax.ik = j;
             }
