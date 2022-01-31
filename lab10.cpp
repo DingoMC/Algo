@@ -2,6 +2,7 @@
 # include <math.h>
 # include <vector>
 # include <stdlib.h>
+# include "colored_text.h"
 # pragma GCC optimize("O2")
 using namespace std;
 const double eps = 1.0e-06;                 // Definicja epsilonu
@@ -36,79 +37,74 @@ int main () {
     bool exit = false;
     // Menu
     while (!exit) {
-        cout<<endl<<"Wybierz metode"<<endl;
-        cout<<"1 --> Podstawowa (bez wyboru elementu maksymalnego)"<<endl;
-        cout<<"2 --> Z wyborem elementu maksymalnego w kolumnie"<<endl;
-        cout<<"3 --> Z pelnym wyborem elementu maksymalnego"<<endl;
-        cout<<"Wyjdz z programu (4)"<<endl;
-        cout<<"Wybor: ";
+        ctext::text("\n&eWybierz metode\n");
+        ctext::text("&a1 &7--> &bPodstawowa (bez wyboru elementu maksymalnego)\n");
+        ctext::text("&a2 &7--> &bZ wyborem elementu maksymalnego w kolumnie\n");
+        ctext::text("&a3 &7--> &bZ pelnym wyborem elementu maksymalnego\n");
+        ctext::text("&3Wyjdz z programu &7(&24&7)\n");
+        ctext::text("&eWybor&7:&a ");
         cin>>menu;
         if (cin.fail()) {
             cin.clear();
             cin.ignore();
             menu = 0;
-            cout<<endl<<"Nieprawidlowa wartosc!"<<endl;
+            ctext::text("\n&cNieprawidlowa wartosc!\n");
+            fflush(stdin);
             continue;
         }
         switch (menu) {
             case 1: {
                 if (WyborDanych()) n = WczytajDane(Ab);
                 else n = WczytajDomyslne(Ab, 1);
-                cout<<endl<<"1. Metoda Podstawowa"<<endl;
-                cout<<"Macierz [A|b] przed eliminacja Gaussa:"<<endl;
+                ctext::text("\n&a1. Metoda Podstawowa\n");
+                ctext::text("\n&eMacierz &7[&dA&7|&db&7]&e przed eliminacja Gaussa&7:\n");
                 Wyswietl2D(Ab, n);
                 if (Eliminacja(Ab, n, 1, IndeksyX)) {
-                    cout<<"Podczas wykonywania eliminacji wystapil blad!"<<endl;
+                    ctext::text("\n&cPodczas wykonywania eliminacji wystapil blad!\n");
                     break;
                 }
-                cout<<endl<<"Macierz [A|b] po eliminacji Gaussa:"<<endl;
-                Wyswietl2D(Ab, n);
                 if (Oblicz(Ab, X, n)) {
-                    cout<<"Podczas wykonywania postepowania odwrotnego wystapil blad!"<<endl;
+                    ctext::text("\n&cPodczas wykonywania postepowania odwrotnego wystapil blad!\n");
                     break;
                 }
-                cout<<endl<<"Macierz wynikowa X:"<<endl;
+                ctext::text("\n&aMacierz wynikowa &dX&7:&a ");
                 Wyswietl(X, n);
                 break;
             }
             case 2: {
                 if (WyborDanych()) n = WczytajDane(Ab);
                 else n = WczytajDomyslne(Ab, 2);
-                cout<<endl<<"2. Metoda z wyborem elementu maksymalnego w kolumnie"<<endl;
-                cout<<"Macierz [A|b] przed eliminacja Gaussa:"<<endl;
+                ctext::text("\n&a2. Metoda z wyborem elementu maksymalnego w kolumnie\n");
+                ctext::text("\n&eMacierz &7[&dA&7|&db&7]&e przed eliminacja Gaussa&7:\n");
                 Wyswietl2D(Ab, n);
                 if (Eliminacja(Ab, n, 2, IndeksyX)) {
-                    cout<<"Podczas wykonywania eliminacji wystapil blad!"<<endl;
+                    ctext::text("\n&cPodczas wykonywania eliminacji wystapil blad!\n");
                     break;
                 }
-                cout<<endl<<"Macierz [A|b] po eliminacji Gaussa:"<<endl;
-                Wyswietl2D(Ab, n);
                 if (Oblicz(Ab, X, n)) {
-                    cout<<"Podczas wykonywania postepowania odwrotnego wystapil blad!"<<endl;
+                    ctext::text("\n&cPodczas wykonywania postepowania odwrotnego wystapil blad!\n");
                     break;
                 }
-                cout<<endl<<"Macierz wynikowa X:"<<endl;
+                ctext::text("\n&aMacierz wynikowa &dX&7:&a ");
                 Wyswietl(X, n);
                 break;
             }
             case 3: {
                 if (WyborDanych()) n = WczytajDane(Ab);
                 else n = WczytajDomyslne(Ab, 3);
-                cout<<endl<<"3. Metoda z pelnym wyborem elementu maksymalnego"<<endl;
-                cout<<"Macierz [A|b] przed eliminacja Gaussa:"<<endl;
+                ctext::text("\n&a3. Metoda z pelnym wyborem elementu maksymalnego\n");
+                ctext::text("\n&eMacierz &7[&dA&7|&db&7]&e przed eliminacja Gaussa&7:\n");
                 Wyswietl2D(Ab, n);
                 if (Eliminacja(Ab, n, 3, IndeksyX)) {
-                    cout<<"Podczas wykonywania eliminacji wystapil blad!"<<endl;
+                    ctext::text("\n&cPodczas wykonywania eliminacji wystapil blad!\n");
                     break;
                 }
-                cout<<endl<<"Macierz [A|b] po eliminacji Gaussa:"<<endl;
-                Wyswietl2D(Ab, n);
                 if (Oblicz(Ab, X, n)) {
-                    cout<<"Podczas wykonywania postepowania odwrotnego wystapil blad!"<<endl;
+                    ctext::text("\n&cPodczas wykonywania postepowania odwrotnego wystapil blad!\n");
                     break;
                 }
                 ZamienX(X, IndeksyX, n);
-                cout<<endl<<"Macierz wynikowa X:"<<endl;
+                ctext::text("\n&aMacierz wynikowa &dX&7:&a ");
                 Wyswietl(X, n);
                 break;
             }
@@ -117,12 +113,12 @@ int main () {
                 break;
             }
             default: {
-                cout<<endl<<"Nieprawidlowy wybor!"<<endl;
+                ctext::text("\n&cNieprawidlowy wybor!\n");
                 break;
             }
         }
     }
-    cout<<endl<<"Program zakonczony. Do widzenia!"<<endl;
+    ctext::rainbow_text("\nDo widzenia!\n");
     cin.ignore();
     cin.get();
     return 0;
@@ -178,28 +174,29 @@ void ZamienWiK (Matrix &Ab, Indeks2D i1, Indeks2D i2, int n, int k, IndexTAB &In
 }
 // Wyświetlanie macierzy wynikowej
 void Wyswietl (TAB X, int n) {
-    cout<<"x = [";
+    ctext::text("&7[&a");
     for (int i = 0; i < n; i++) {
         cout<<X[i];
-        if (i < n - 1) cout<<" ; ";
+        if (i < n - 1) ctext::text(" &8;&a ");
     }
-    cout<<"]T"<<endl;
+    ctext::text("&7]&5T\n");
 }
 // Wyświetlanie macierzy dwuwymiarowej
 void Wyswietl2D (Matrix Ab, int n) {
     for (int i = 0; i < n; i++) {
-        cout<<"[ ";
+        ctext::text("&7[ ");
         for (int j = 0; j < n + 1; j++) {
+            ctext::text("", ct::CYAN);
             cout<<Ab[i][j]<<"\t";
-            if (j == n - 1) cout<<"| ";
+            if (j == n - 1) ctext::text("&8| ");
         }
-        cout<<"]"<<endl;
+        ctext::text("&7]\n");
     }
 }
 // Postępowanie odwrotne Gaussa
 bool Oblicz (Matrix Ab, TAB &X, int n) {
     if (fabs(Ab[n-1][n-1]) <= eps) {
-        cout<<"Blad w postepowaniu odwrotnym - a"<<n<<n<<" <= eps"<<endl;
+        ctext::text("\n&cBlad w postepowaniu odwrotnym: A" + to_string(n) + to_string(n) +" <= eps\n");
         return true;
     }
     X.resize(n);
@@ -219,7 +216,7 @@ bool Eliminacja (Matrix &Ab, int n, int metoda, IndexTAB &IndeksyX) {
         if (metoda == 2) ZamienWiersze(Ab, k-1, IndexMAXK(Ab, k-1, n), n);
         if (metoda == 3) ZamienWiK(Ab, {k-1, k-1}, IndexMAXPelny(Ab, k-1, n), n, k-1, IndeksyX);
         if (fabs(Ab[k-1][k-1]) <= eps) {
-            cout<<"Blad w kroku "<<k<<". eliminacji: a"<<k<<k<<" <= eps"<<endl;
+            ctext::text("\n&cBlad w kroku " + to_string(k) + ". eliminacji: A" + to_string(k) + to_string(k) +" <= eps\n");
             return true;
         }
         TAB p;
@@ -228,6 +225,8 @@ bool Eliminacja (Matrix &Ab, int n, int metoda, IndexTAB &IndeksyX) {
         for (int i = k; i < n; i++) {
             for (int j = 0; j < n + 1; j++) Ab[i][j] -= (p[i-k] * Ab[k-1][j]);
         }
+        ctext::text("\n&eMacierz &7[&dA&7|&db&7]&e po &b" + to_string(k) + " &ekroku eliminacji Gaussa:\n");
+        Wyswietl2D(Ab, n);
     }
     return false;
 }
@@ -268,20 +267,20 @@ unsigned int WczytajDomyslne (Matrix& Ab, int metoda) {
 unsigned int WczytajDane (Matrix &Ab) {
     unsigned int n = 0;
     while (n < 2) {
-        cout<<"Podaj liczbe niewiadomych (n): ";
+        ctext::text("&bPodaj liczbe niewiadomych &7(&an&7):&a ");
         cin>>n;
         if (cin.fail()) {
             cin.clear();
             cin.ignore();
             n = 0;
-            cout<<endl<<"Nieprawidlowa wartosc!"<<endl;
+            ctext::text("\n&cNieprawidlowa wartosc!\n");
         }
     }
     Ab.resize(n);
     for (int i = 0; i < n; i++) Ab[i].resize(n + 1);
-    cout<<"Podaj macierz [A|b]:"<<endl;
+    ctext::text("&bPodaj macierz &7[&dA&7|&db&7] &7(&8Nowy wiersz - <Enter>, Nowa kolumna - <Spacja>&7):\n");
     for (int i = 0; i < n; i++) {
-        cout<<"Wiersz ["<<i+1<<"]: ";
+        ctext::text("&bWiersz &7[&a" + to_string(i+1) + "&7]:&d ");
         for (int j = 0; j < n + 1; j++) cin>>Ab[i][j];
     }
     return n;
@@ -290,16 +289,16 @@ unsigned int WczytajDane (Matrix &Ab) {
 bool WyborDanych () {
     bool daneZewn = false;
     while (true) {
-        cout<<endl<<"Wybierz dane"<<endl;
-        cout<<"0 --> Dane z programu"<<endl;
-        cout<<"1 --> Dane od uzytkownika"<<endl;
-        cout<<"Wybor: ";
+        ctext::text("\n&eWybierz dane\n");
+        ctext::text("&a0 &7--> &bDane z programu\n");
+        ctext::text("&a1 &7--> &bDane od uzytkownika\n");
+        ctext::text("&eWybor&7:&a ");
         cin>>daneZewn;
         if (cin.fail()) {
             cin.clear();
             cin.ignore();
             daneZewn = false;
-            cout<<endl<<"Nieprawidlowy wybor!"<<endl;
+            ctext::text("\n&cNieprawidlowy wybor!\n");
         }
         else {
             return daneZewn;
